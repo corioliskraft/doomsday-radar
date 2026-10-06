@@ -19,9 +19,13 @@ Commits: the agent commits after the user approves the commit. This overrides th
 
 Before a slice that depends on external data, run a quick check with real data and record the result in the slice plan.
 
-## Design documents
+## Writing
 
-Keep them thin:
+Write thin text: documents, code comments, commit messages, and pull request descriptions. Long text goes unread, and filler hides the part that matters. Tell the reader something that the code, the diff, or the text above does not show. One short sentence is often enough. Use more when the content needs more.
+
+A document is short and has short sections. It holds what is important for the reader, for example why the team took a decision or how the system works.
+
+Documents:
 
 - Architecture decisions: ADRs in `docs/adr/`, written with the `adr` agent, only for decisions that its rules say need one.
 - Architecture overview: `docs/architecture.md`, made with the `diagrams` skill. It shows only components that exist in the project.
