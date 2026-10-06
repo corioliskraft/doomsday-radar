@@ -27,7 +27,8 @@ An operator runs the job on a local file, and the page shows a grey square for e
 
 - **Path**: job (file path) → decoder → count per square → Kafka → Java consumer → ClickHouse → HTTP endpoint → page.
 - **RED**: an end-to-end test with Testcontainers (Kafka, ClickHouse) runs the job on a small fixture with only position records, and reads the counts from the endpoint.
-- **Before it starts**: Docker runs; the `developing-kafka-java-client` skill is installed; the client libraries pass an `evaluate-existing-solutions` preflight.
+- **Before it starts**: Docker runs; the `developing-kafka-java-client` skill is installed.
+- **Libraries** (accepted 2026-10-06): `kafka-clients` 4.3.1, ClickHouse `client-v2` 0.10.0, Testcontainers 2.0.5, Jackson 3.2.3, the JDK HTTP server, MapLibre GL JS 6.12.0 with OpenFreeMap tiles. Leaflet lost because its last stable release is from 2023.
 
 ### Slice 2: count each aircraft once
 
@@ -43,7 +44,3 @@ The job takes a date and a slot number, downloads the file, processes it, and de
 ### Slice 4: data as of
 
 The page shows "data as of <slot time>".
-
-## Open questions
-
-1. How does the page draw the map: a map library with a base map, or plain squares without one?
