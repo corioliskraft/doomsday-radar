@@ -37,6 +37,7 @@ Data flow:
 |---|---|---|
 | Java | Java 25 | Newest LTS, supports all tools that we need. |
 | Kafka | Now, one broker | All later sources send their data through Kafka. |
+| Message format | Avro with Confluent Schema Registry, now | Kafka accepts any bytes. The registry rejects a message that does not match the schema, before the message gets into the topic. |
 | Database | ClickHouse, now | Free and open source (Apache 2.0). It runs locally in Docker, has a Testcontainers module, a Kafka table engine, unique counts, and geographic functions. This is sufficient for our needs. |
 | Docker | Now | Kafka and ClickHouse run in containers on the laptop. Testcontainers also needs Docker. |
 | Spark | Later | A Java consumer is sufficient for one file every 30 minutes, and its tests are fast. A later change to Spark rewrites only the processing job. |
