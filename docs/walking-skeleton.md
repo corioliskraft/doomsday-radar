@@ -5,7 +5,7 @@
 1. A backfill job downloads the files of the last 29 days (approximately 32 GB). For each file, the job counts the unique aircraft in each 1° square for each 30-minute slot. The job keeps the counts and the ICAO hex codes for each square and slot, and deletes the file.
 2. Every 30 minutes, a poll job does the same steps for the newest file.
 3. The baseline for each square and slot is the mean of the values on day −7, −14, −21, and −28.
-4. A web page shows a world map with squares of 1° by 1°. The colour of each square compares the current number of aircraft with the baseline:
+4. A web page shows a world map with squares of 1° by 1°. The map is white for land and water, with thin lines for the coastlines and the country borders. The colour of each square compares the current number of aircraft with the baseline:
    - green: near normal
    - red: much fewer aircraft
    - blue: many more aircraft
