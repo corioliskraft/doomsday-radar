@@ -7,7 +7,7 @@
 ## Test Plan
 
 ## Cross-provider review
-<!-- The project /pr skill replaces NOT RUN with the reviewer, model, rounds, final verdict, and open findings. NOT RUN at merge time means the review was skipped. -->
+<!-- The project /pr skill replaces the line below with the review result. If the line is unchanged at merge, the review did not run. -->
 NOT RUN
 
 ## Evidence Bundle

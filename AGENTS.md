@@ -21,7 +21,7 @@ Before a slice that depends on external data, run a quick check with real data a
 
 ## Writing
 
-Write thin text: documents, code comments, commit messages, and pull request descriptions. Long text goes unread, and filler hides the part that matters. Tell the reader something that the code, the diff, or the text above does not show. One short sentence is often enough. Use more when the content needs more.
+Write thin text: documents, code comments, and pull request descriptions. Long text goes unread, and filler hides the part that matters. Tell the reader something that the code, the diff, or the text above does not show. One short sentence is often enough. Use more when the content needs more.
 
 A commit message is the subject line only. Add a body only for a reason that the diff cannot show, in one or two sentences.
 
