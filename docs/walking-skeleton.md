@@ -40,6 +40,7 @@ Data flow:
 | Message format | Avro with Confluent Schema Registry, now | Kafka accepts any bytes. The registry rejects a message that does not match the schema, before the message gets into the topic. |
 | Database | ClickHouse, now | Free and open source (Apache 2.0). It runs locally in Docker, has a Testcontainers module, a Kafka table engine, unique counts, and geographic functions. This is sufficient for our needs. |
 | Docker | Now | Kafka and ClickHouse run in containers on the laptop. Testcontainers also needs Docker. |
+| Map page | MapLibre GL JS 6.12.0 served by the project, OpenFreeMap vector tiles, now | Leaflet has no stable release since 2023. OpenFreeMap needs no key. The browser loads the tiles from OpenFreeMap at runtime. |
 | Spark | Later | A Java consumer is sufficient for one file every 30 minutes, and its tests are fast. A later change to Spark rewrites only the processing job. |
 | Hosting, Kubernetes, S3 | Later | Version 1 runs on a laptop in Docker. |
 

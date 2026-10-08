@@ -14,6 +14,7 @@ dev-team is the main workflow. For each task, use the installed skill that fits 
 
 - Work in slices, one slice at a time.
 - Each behavior change starts from a failing test, run with the project's Java test runner (`tdd`). Until a JVM mutation tool is chosen, record the mutation gate as `N/A` with the alternate evidence that `tdd` allows.
+- After the Farley Score of a slice, each test property below 6 gets a fix, or a reason in the slice plan why it stays.
 
 Commits: the agent commits after the user approves the commit. The agent also creates branches, pushes, and opens pull requests, each after the user approves it. This overrides the global rule that the user runs git writes. The commit message has no `Co-Authored-By` line and does not name the agent.
 

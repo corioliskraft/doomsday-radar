@@ -30,5 +30,17 @@ final class HeatmapFixture {
         return file;
     }
 
+    static Path writeBerlinAndParis(Path file) throws IOException {
+        return write(
+                file,
+                position(0xA00001, 52.52, 13.40),
+                position(0xA00002, 52.10, 13.90),
+                position(0xA00003, 48.85, 2.35));
+    }
+
+    static Path writeOneAircraftInBerlin(Path file) throws IOException {
+        return write(file, position(0xA00001, 52.52, 13.40));
+    }
+
     private HeatmapFixture() {}
 }

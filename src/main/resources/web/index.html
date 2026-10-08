@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Doomsday Radar</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/maplibre/maplibre-gl.css">
+  <style>
+    html, body, #map { margin: 0; height: 100%; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script type="module">
+    import { Map as MapLibreMap } from "/maplibre/maplibre-gl.mjs";
+
+    const OPENFREEMAP_TILEJSON = "https://tiles.openfreemap.org/planet";
+    const WHITE = "#ffffff";
+    const LINE_GREY = "#808080";
+    const LINE_WIDTH = 1;
+    const COUNTRY_ADMIN_LEVEL = 2;
+    const MIN_ZOOM = -2;
+    const SQUARE_SIZE_DEGREES = 1;
+    const TILE_SIZE = 512;
+    const WORLD_MARGIN_ZOOM = 0.01;
+
+    window.map = new MapLibreMap({
+      container: "map",
+      style: {
+        version: 8,
+        sources: { openmaptiles: { type: "vector", url: OPENFREEMAP_TILEJSON } },
+        layers: [
+          { id: "background", type: "background", paint: { "background-color": WHITE } },
+          { id: "water", type: "fill", source: "openmaptiles", "source-layer": "water",
+            paint: { "fill-color": WHITE } },
+          { id: "coastline", type: "line", source: "openmaptiles", "source-layer": "water",
+            filter: ["==", ["get", "class"], "ocean"],
+            paint: { "line-color": LINE_GREY, "line-width": LINE_WIDTH } },
+          { id: "country-borders", type: "line", source: "openmaptiles", "source-layer": "boundary",
+            filter: ["all", ["==", ["get", "admin_level"], COUNTRY_ADMIN_LEVEL], ["==", ["get", "maritime"], 0]],
+            paint: { "line-color": LINE_GREY, "line-width": LINE_WIDTH } },
+        ],
+      },
+      center: [0, 0],
+      minZoom: MIN_ZOOM,
+      zoom: Math.log2(window.innerWidth / TILE_SIZE) - WORLD_MARGIN_ZOOM,
+    });
+
+    const LIGHT_GREY = "#d9d9d9";
+    const DARK_GREY = "#404040";
+
+    function fillColor(highestCount) {
+      const stops = highestCount > 1
+        ? [0, WHITE, 1, LIGHT_GREY, highestCount, DARK_GREY]
+        : [0, WHITE, 1, DARK_GREY];
+      return ["interpolate", ["linear"], ["get", "aircraft"], ...stops];
+    }
+
+    function squarePolygon({ latitude, longitude, aircraft }) {
+      return {
+        type: "Feature",
+        properties: { aircraft },
+        geometry: {
+          type: "Polygon",
+          coordinates: [[
+            [longitude, latitude],
+            [longitude + SQUARE_SIZE_DEGREES, latitude],
+            [longitude + SQUARE_SIZE_DEGREES, latitude + SQUARE_SIZE_DEGREES],
+            [longitude, latitude + SQUARE_SIZE_DEGREES],
+            [longitude, latitude],
+          ]],
+        },
+      };
+    }
+
+    const mapLoaded = new Promise((resolve) => window.map.once("load", resolve));
+    const squares = await (await fetch("/api/squares")).json();
+    await mapLoaded;
+
+    const highestCount = squares.reduce((highest, s) => Math.max(highest, s.aircraft), 0);
+
+    window.map.addSource("squares", {
+      type: "geojson",
+      data: { type: "FeatureCollection", features: squares.map(squarePolygon) },
+    });
+    window.map.addLayer({
+      id: "squares",
+      type: "fill",
+      source: "squares",
+      paint: { "fill-color": fillColor(highestCount) },
+    });
+    window.map.once("idle", () => { window.squaresLoaded = true; });
+  </script>
+</body>
+</html>

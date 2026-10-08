@@ -35,12 +35,13 @@ final class SquareCountConsumer implements AutoCloseable {
         clickHouse
                 .execute(
                         """
-                        CREATE TABLE IF NOT EXISTS square_counts (
+                        CREATE TABLE IF NOT EXISTS %s (
                             latitude Int16,
                             longitude Int16,
                             aircraft UInt32
                         ) ENGINE = MergeTree ORDER BY (latitude, longitude)\
-                        """)
+                        """
+                                .formatted(Tables.SQUARE_COUNTS))
                 .get();
         return new SquareCountConsumer(new KafkaConsumer<>(consumerConfig(settings)), clickHouse);
     }
@@ -85,7 +86,11 @@ final class SquareCountConsumer implements AutoCloseable {
                                                         count.getAircraft()))
                         .collect(Collectors.joining(", "));
         clickHouse
-                .execute("INSERT INTO square_counts (latitude, longitude, aircraft) VALUES " + rows)
+                .execute(
+                        "INSERT INTO "
+                                + Tables.SQUARE_COUNTS
+                                + " (latitude, longitude, aircraft) VALUES "
+                                + rows)
                 .get();
     }
 
