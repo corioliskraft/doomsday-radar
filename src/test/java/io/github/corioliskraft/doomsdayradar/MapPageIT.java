@@ -180,6 +180,16 @@ class MapPageIT {
             assertThat(paintProperty(session.page, COUNTRY_BORDERS_LAYER, "line-width"))
                     .as("country border width")
                     .isEqualTo(LINE_WIDTH);
+            assertThat(filter(session.page, COASTLINE_LAYER))
+                    .as("coastline filter: outline of ocean water")
+                    .isEqualTo(List.of("==", List.of("get", "class"), "ocean"));
+            assertThat(filter(session.page, COUNTRY_BORDERS_LAYER))
+                    .as("country border filter: admin level 2, not maritime")
+                    .isEqualTo(
+                            List.of(
+                                    "all",
+                                    List.of("==", List.of("get", "admin_level"), 2),
+                                    List.of("==", List.of("get", "maritime"), 0)));
             assertThat(session.page.evaluate("window.map.getStyle().layers.map((l) => l.type)"))
                     .as("layer types")
                     .asInstanceOf(InstanceOfAssertFactories.LIST)
@@ -238,7 +248,7 @@ class MapPageIT {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"/other", "/maplibre/unknown.mjs", "/maplibre/"})
+    @ValueSource(strings = {"/other", "/maplibre/unknown.mjs", "/maplibre/", "/api/squares/other"})
     void unknownPathsAreNotFound(String path) throws Exception {
         try (var server = MapServer.start(containers.settings(), 0);
                 var http = HttpClient.newHttpClient()) {
@@ -247,6 +257,23 @@ class MapPageIT {
             var response = http.send(request, HttpResponse.BodyHandlers.ofString());
 
             assertThat(response.statusCode()).isEqualTo(404);
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"/", "/api/squares"})
+    void onlyGetIsAllowed(String path) throws Exception {
+        try (var server = MapServer.start(containers.settings(), 0);
+                var http = HttpClient.newHttpClient()) {
+            var request =
+                    HttpRequest.newBuilder(URI.create(url(server.port(), path)))
+                            .POST(HttpRequest.BodyPublishers.noBody())
+                            .build();
+
+            var response = http.send(request, HttpResponse.BodyHandlers.ofString());
+
+            assertThat(response.statusCode()).isEqualTo(405);
+            assertThat(response.headers().firstValue("Allow")).hasValue("GET");
         }
     }
 
@@ -302,6 +329,10 @@ class MapPageIT {
         return page.evaluate(
                 "([layer, property]) => window.map.getPaintProperty(layer, property)",
                 List.of(layer, property));
+    }
+
+    private static Object filter(Page page, String layer) {
+        return page.evaluate("(layer) => window.map.getFilter(layer)", layer);
     }
 
     private static void waitUntil(Page page, String condition) {

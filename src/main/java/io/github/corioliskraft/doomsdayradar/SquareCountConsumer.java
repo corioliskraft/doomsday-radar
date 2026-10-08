@@ -32,18 +32,28 @@ final class SquareCountConsumer implements AutoCloseable {
         AvroClasses.trustOwnClasses();
         createTopic(settings);
         var clickHouse = ClickHouse.connect(settings);
-        clickHouse
-                .execute(
-                        """
-                        CREATE TABLE IF NOT EXISTS %s (
-                            latitude Int16,
-                            longitude Int16,
-                            aircraft UInt32
-                        ) ENGINE = MergeTree ORDER BY (latitude, longitude)\
-                        """
-                                .formatted(Tables.SQUARE_COUNTS))
-                .get();
-        return new SquareCountConsumer(new KafkaConsumer<>(consumerConfig(settings)), clickHouse);
+        try {
+            clickHouse
+                    .execute(
+                            """
+                            CREATE TABLE IF NOT EXISTS %s (
+                                latitude Int16,
+                                longitude Int16,
+                                aircraft UInt32
+                            ) ENGINE = MergeTree ORDER BY (latitude, longitude)\
+                            """
+                                    .formatted(Tables.SQUARE_COUNTS))
+                    .get();
+            return new SquareCountConsumer(
+                    new KafkaConsumer<>(consumerConfig(settings)), clickHouse);
+        } catch (InterruptedException | ExecutionException | RuntimeException failure) {
+            try {
+                clickHouse.close();
+            } catch (RuntimeException closeFailure) {
+                failure.addSuppressed(closeFailure);
+            }
+            throw failure;
+        }
     }
 
     private SquareCountConsumer(KafkaConsumer<String, SquareCount> consumer, Client clickHouse) {

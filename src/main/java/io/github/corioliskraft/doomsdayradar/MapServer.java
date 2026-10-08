@@ -2,6 +2,7 @@ package io.github.corioliskraft.doomsdayradar;
 
 import com.clickhouse.client.api.Client;
 import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
@@ -18,6 +19,7 @@ final class MapServer implements AutoCloseable {
     private static final String CSS = "text/css; charset=utf-8";
     private static final String TEXT = "text/plain; charset=utf-8";
     private static final String JSON = "application/json";
+    private static final String SQUARES_PATH = "/api/squares";
 
     private static final Map<String, AssetSource> ASSET_SOURCES =
             Map.of(
@@ -59,8 +61,8 @@ final class MapServer implements AutoCloseable {
         this.http = http;
         this.clickHouse = clickHouse;
         this.assets = assets;
-        http.createContext("/", this::serveAsset);
-        http.createContext("/api/squares", this::serveSquares);
+        http.createContext("/", getOnly(this::serveAsset));
+        http.createContext(SQUARES_PATH, getOnly(this::serveSquares));
     }
 
     int port() {
@@ -87,17 +89,31 @@ final class MapServer implements AutoCloseable {
         }
     }
 
+    private static HttpHandler getOnly(HttpHandler handler) {
+        return exchange -> {
+            if (!"GET".equals(exchange.getRequestMethod())) {
+                exchange.getResponseHeaders().set("Allow", "GET");
+                respondEmpty(exchange, 405);
+                return;
+            }
+            handler.handle(exchange);
+        };
+    }
+
     private void serveAsset(HttpExchange exchange) throws IOException {
         var asset = assets.get(exchange.getRequestURI().getPath());
         if (asset == null) {
-            exchange.sendResponseHeaders(404, -1);
-            exchange.close();
+            respondEmpty(exchange, 404);
             return;
         }
         respond(exchange, asset.contentType(), asset.bytes());
     }
 
     private void serveSquares(HttpExchange exchange) throws IOException {
+        if (!SQUARES_PATH.equals(exchange.getRequestURI().getPath())) {
+            respondEmpty(exchange, 404);
+            return;
+        }
         var json =
                 clickHouse
                         .queryAll(
@@ -114,6 +130,11 @@ final class MapServer implements AutoCloseable {
                         .collect(Collectors.joining(",", "[", "]"))
                         .getBytes(StandardCharsets.UTF_8);
         respond(exchange, JSON, json);
+    }
+
+    private static void respondEmpty(HttpExchange exchange, int status) throws IOException {
+        exchange.sendResponseHeaders(status, -1);
+        exchange.close();
     }
 
     private static void respond(HttpExchange exchange, String contentType, byte[] bytes)

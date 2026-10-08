@@ -33,7 +33,7 @@ An operator runs the job on a local file, and the page shows a grey square for e
 - **RED**: an end-to-end test with Testcontainers (Kafka, Schema Registry, ClickHouse) runs the job on a small fixture with only position records, and reads the counts from the endpoint.
 - **Before it starts**: Docker runs; the `developing-kafka-java-client` skill is installed.
 - **Libraries** (accepted 2026-10-06): `kafka-clients` 4.3.1, ClickHouse `client-v2` 0.10.0, Testcontainers 2.0.5, Confluent Schema Registry 8.3.2 with `kafka-avro-serializer` 8.3.2 and Avro 1.12.2, the JDK HTTP server, MapLibre GL JS 6.12.0 with OpenFreeMap tiles. Test only: Jackson 3.2.3 reads the endpoint JSON; Playwright for Java 1.63.0 checks the page (added 2026-10-08). Leaflet lost because its last stable release is from 2023.
-- **Next increment**: a failure in the consumer thread reaches the caller, with its own failing test.
+- **Next increment**: a failure in the consumer thread reaches the caller, with its own failing test. The same increment adds the test for a failed `SquareCountConsumer.start`: it closes the ClickHouse client. That close has no test yet.
 **Depends-on:** none
 
 #### Page: criteria 2 and 3 (dev-team build)
@@ -43,7 +43,7 @@ Real-data check (2026-10-08): MapLibre 6.12.0 has no `maplibre-gl.js`, only ES m
 Design:
 
 - `MapServer` serves `GET /` from the class path resource `web/index.html`. Other paths under `/` return 404.
-- The page imports MapLibre 6.12.0 from the project: `MapServer` serves `maplibre-gl.mjs`, `maplibre-gl-shared.mjs`, `maplibre-gl-worker.mjs`, `maplibre-gl.css` and `LICENSE.txt` from the class path folder `web/maplibre/`, under `/maplibre/`. The files come from the npm tarball, sha512 checked on 2026-10-08. The page builds its own style on the OpenFreeMap source. The style has only these layers: white background, white `water` fill, a 1 px line on the outline of the `ocean` water class (coastline), a 1 px line for `boundary` with `admin_level` 2 and `maritime` 0 (country borders), and the squares. No labels.
+- The page imports MapLibre 6.12.0 from the project: `MapServer` serves `maplibre-gl.mjs`, `maplibre-gl-shared.mjs`, `maplibre-gl-worker.mjs`, `maplibre-gl.css` and `LICENSE.txt` from the class path folder `web/maplibre/`, under `/maplibre/`. The files come from the npm tarball `maplibre-gl-6.12.0.tgz`, sha512 checked on 2026-10-08 against the npm integrity `sha512-DwgganVi2BhNxOpD7ob3lJC0dQQz4HfJfuQQV3XxCY3XdOzFrMqp9ylMXhRzryRsOnIezdZcklWXIIs/Q8JPjA==`; each file equals its copy in the tarball. The page builds its own style on the OpenFreeMap source. The style has only these layers: white background, white `water` fill, a 1 px line on the outline of the `ocean` water class (coastline), a 1 px line for `boundary` with `admin_level` 2 and `maritime` 0 (country borders), and the squares. No labels.
 - The first view shows the full world width.
 - The square named 52°N 13°E has its south-west corner at latitude 52, longitude 13. It is the polygon from (`longitude`, `latitude`) to (`longitude` + 1, `latitude` + 1).
 - Fill colour: white `#ffffff` at 0, `#d9d9d9` at 1, linear to `#404040` at the highest count of the response. If the highest count is 1, each square is `#404040`.
