@@ -1,0 +1,11 @@
+{
+  "type": "record",
+  "name": "SquareCount",
+  "namespace": "io.github.corioliskraft.doomsdayradar",
+  "doc": "Number of aircraft in one square of 1 by 1 degree.",
+  "fields": [
+    {"name": "latitude", "type": "int", "doc": "Latitude of the south edge of the square, in degrees."},
+    {"name": "longitude", "type": "int", "doc": "Longitude of the west edge of the square, in degrees."},
+    {"name": "aircraft", "type": "int", "default": 0, "doc": "Number of aircraft in the square."}
+  ]
+}

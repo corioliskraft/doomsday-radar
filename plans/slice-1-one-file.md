@@ -32,7 +32,8 @@ An operator runs the job on a local file, and the page shows a grey square for e
   3. The map is white for land and water, with thin lines for the coastlines and the country borders. A square with 0 aircraft is white.
 - **RED**: an end-to-end test with Testcontainers (Kafka, Schema Registry, ClickHouse) runs the job on a small fixture with only position records, and reads the counts from the endpoint.
 - **Before it starts**: Docker runs; the `developing-kafka-java-client` skill is installed.
-- **Libraries** (accepted 2026-10-06): `kafka-clients` 4.3.1, ClickHouse `client-v2` 0.10.0, Testcontainers 2.0.5, Confluent Schema Registry 8.3.2 with `kafka-avro-serializer` 8.3.2 and Avro 1.12.2, the JDK HTTP server, MapLibre GL JS 6.12.0 with OpenFreeMap tiles. Leaflet lost because its last stable release is from 2023.
+- **Libraries** (accepted 2026-10-06): `kafka-clients` 4.3.1, ClickHouse `client-v2` 0.10.0, Testcontainers 2.0.5, Confluent Schema Registry 8.3.2 with `kafka-avro-serializer` 8.3.2 and Avro 1.12.2, the JDK HTTP server, MapLibre GL JS 6.12.0 with OpenFreeMap tiles. Test only: Jackson 3.2.3 reads the endpoint JSON. Leaflet lost because its last stable release is from 2023.
+- **Next increment**: a failure in the consumer thread reaches the caller, with its own failing test.
 
 ### Slice 2: count each aircraft once
 
@@ -43,7 +44,7 @@ The count for a square is the number of unique aircraft in the slot. Header, mar
 
 ### Slice 3: download the file
 
-The job takes a date and a slot number, downloads the file, processes it, and deletes it. If the file is missing, the job stops with an error and sends nothing.
+The job takes a date and a slot number, downloads the file, processes it, and deletes it. If the file is missing, the job stops with an error and sends nothing. A file imported twice, or a message delivered twice, does not duplicate the counts. The endpoint returns only the squares of the newest slot, at most 64,800.
 
 ### Slice 4: data as of
 
