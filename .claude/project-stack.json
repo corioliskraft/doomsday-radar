@@ -1,0 +1,10 @@
+{
+  "detected": "2026-10-08",
+  "stacks": ["java"],
+  "frameworks": ["junit6", "testcontainers", "kafka", "clickhouse"],
+  "packageManager": "maven",
+  "hasDocker": false,
+  "indicators": {
+    "pom.xml": true
+  }
+}

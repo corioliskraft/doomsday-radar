@@ -10,12 +10,12 @@ A public website that compares the current aircraft count per region with a base
 
 ## Workflow
 
-No framework is the main one. For each task, use the installed skill that fits it best, from any set (paul-dotfiles skills, superpowers, dev-team), and name it in one line. These rules apply to all tasks:
+dev-team is the main workflow. For each task, use the installed skill that fits it best, and name it in one line. superpowers is turned off for this project. These rules apply to all tasks:
 
 - Work in slices, one slice at a time.
 - Each behavior change starts from a failing test, run with the project's Java test runner (`tdd`). Until a JVM mutation tool is chosen, record the mutation gate as `N/A` with the alternate evidence that `tdd` allows.
 
-Commits: the agent commits after the user approves the commit. This overrides the global rule that the user runs git writes. The commit message has no `Co-Authored-By` line and does not name the agent.
+Commits: the agent commits after the user approves the commit. The agent also creates branches, pushes, and opens pull requests, each after the user approves it. This overrides the global rule that the user runs git writes. The commit message has no `Co-Authored-By` line and does not name the agent.
 
 Before a slice that depends on external data, run a quick check with real data and record the result in the slice plan.
 

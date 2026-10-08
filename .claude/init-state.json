@@ -1,0 +1,24 @@
+{
+  "codegraph": {
+    "install_accepted": true,
+    "init_accepted": true
+  },
+  "repowise": {
+    "install_accepted": true
+  },
+  "graphify": {
+    "enrichment_skipped_no_key": true,
+    "code_only_build": true
+  },
+  "mcp_hygiene": {
+    "gitignore": "added"
+  },
+  "last_run": {
+    "stack": [
+      "java"
+    ],
+    "all_slots_bound": true,
+    "capability_tools_resolved": true,
+    "checked_at": "2026-10-08T05:19:56.779487+00:00"
+  }
+}
