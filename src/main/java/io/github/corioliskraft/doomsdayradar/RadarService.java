@@ -16,10 +16,10 @@ public final class RadarService implements AutoCloseable {
         } catch (Exception e) {
             try {
                 consumer.close();
+            } catch (InterruptedException closeFailure) {
+                Thread.currentThread().interrupt();
+                e.addSuppressed(closeFailure);
             } catch (Exception closeFailure) {
-                if (closeFailure instanceof InterruptedException) {
-                    Thread.currentThread().interrupt();
-                }
                 e.addSuppressed(closeFailure);
             }
             throw e;

@@ -65,8 +65,7 @@ final class SquareCountConsumer implements AutoCloseable {
                     consumer.commitSync();
                 }
             }
-        } catch (WakeupException _) {
-            // close() stops the loop.
+        } catch (WakeupException _) { // NOPMD - EmptyCatchBlock: close() stops the loop.
         } catch (InterruptedException | ExecutionException e) {
             throw new IllegalStateException(e);
         } finally {
