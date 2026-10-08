@@ -10,7 +10,7 @@ argument-hint: "[--draft] [--base <branch>]"
 
 1. `./mvnw verify`: unit tests and the Testcontainers ITs. Docker must run. Keep `verify` as the second word, or dev-team's mutation hook does not see the test run.
 2. `.pmd/pmd-bin-*/bin/pmd check -d src -R rulesets/java/quickstart.xml -f text --no-progress`: exit 4 means findings, and findings stop the pull request.
-3. The `double-check` skill with the default Grok profile on `git diff origin/<base>...HEAD` (`<base>` is `main` unless `--base` names another). Use only a reviewer from another provider: if none can run, the review did not finish. Open findings do not stop the pull request: Nikolay decides on them at merge. If the review leads to a change, run gates 1 and 2 again, and commit the change only after both pass and Nikolay approves the commit. If the review does not finish, report why and continue.
+3. The `double-check` skill with the default Grok profile on `git diff origin/<base>...HEAD` (`<base>` is `main` unless `--base` names another). Use only a reviewer from another provider: if none can run, the review did not finish. Open findings do not stop the pull request: Nikolay decides on them at merge. If the review leads to a change, run gates 1 and 2 again, commit the change only after both pass and Nikolay approves the commit, and run the next round on the new HEAD. If Nikolay does not approve the commit, stop and report. If the review does not finish, report why and continue.
 
 Then invoke `/dev-team:pr --no-auto-merge --draft $ARGUMENTS`. Its gate step runs neither Maven nor PMD and fills "Checks run" only from its own results. Complete the body while the pull request is a draft:
 
