@@ -35,6 +35,7 @@ An operator runs the job on a local file, and the page shows a grey square for e
 - **Libraries** (accepted 2026-10-06): `kafka-clients` 4.3.1, ClickHouse `client-v2` 0.10.0, Testcontainers 2.0.5, Confluent Schema Registry 8.3.2 with `kafka-avro-serializer` 8.3.2 and Avro 1.12.2, the JDK HTTP server, MapLibre GL JS 6.12.0 with OpenFreeMap tiles. Test only: Jackson 3.2.3 reads the endpoint JSON; Playwright for Java 1.63.0 checks the page (added 2026-10-08). Leaflet lost because its last stable release is from 2023.
 - **Next increment**: a failure in the consumer thread reaches the caller, with its own failing test. The same increment adds the test for a failed `SquareCountConsumer.start`: it closes the ClickHouse client. That close has no test yet.
 **Depends-on:** none
+**Files:** `pom.xml`, `src/main/`, `src/test/java/io/github/corioliskraft/doomsdayradar/`, `docs/`, `AGENTS.md`, `.claude/`, `scripts/`, `plans/`
 
 #### Page: criteria 2 and 3 (dev-team build)
 
@@ -110,11 +111,13 @@ Feature: Map page
 **Files**: `src/main/resources/web/maplibre/*`, `src/main/resources/web/index.html`, `src/main/java/io/github/corioliskraft/doomsdayradar/MapServer.java`, `src/test/java/io/github/corioliskraft/doomsdayradar/MapPageIT.java`
 **Commit**: `Serve MapLibre from the project`
 
-Farley properties below 6 that stay (2026-10-08):
+Farley properties below 6 that stay (2026-10-09, report `dev/farley-slice-1.md`, 15 cases, suite score 7.8):
 
-- `baseMapDrawsCoastlinesAndBordersAndLeavesLandAndOpenOceanWhite`, Repeatable 4 and Fast 5: criterion 3 is about the real coastlines and borders, so the test reads the real OpenFreeMap tiles.
-- `endpointReturnsTheAircraftCountOfEachSquareInOneFile`, Fast 4: the end-to-end test runs through Kafka and ClickHouse; the time is the container cost.
-- `styleHasBaseMapLayersWhiteFillsAndOnePixelLines`, Maintainable 4: the step 1.4 TEST line requires the exact layer list.
+- `baseMapDrawsCoastlinesAndBordersAndLeavesLandAndOpenOceanWhite`, Repeatable 4: criterion 3 is about the real coastlines and borders, so the test reads the real OpenFreeMap tiles. Atomic 5: the four assertions read one screenshot of one page state; a split would load the page and the tiles again for each assertion.
+- `endpointReturnsTheAircraftCountOfEachSquareInOneFile`, Fast 4: the end-to-end test runs through Kafka and ClickHouse; the time is the container cost (class 47 s).
+- `styleHasBaseMapLayersWhiteFillsAndOnePixelLines`, Maintainable 4: the step 1.4 TEST line requires the exact layer list. Atomic 5: the style is one contract (layers, colours, widths, filters); a split would open a page session for each part, about 1 s each.
+
+ADR check (2026-10-09, `adr` agent): ADR 0001 (Avro with Schema Registry) and ADR 0002 (MapLibre served by the project, OpenFreeMap tiles) are in `docs/adr/`. No ADR for Java 25, Kafka and ClickHouse (the table of `docs/walking-skeleton.md` records the reasons and no alternative), Docker, the JDK HTTP server, Playwright, Testcontainers, the Java consumer before Spark (cheap to reverse), and the single-JVM `RadarService`.
 
 #### Build Progress
 
