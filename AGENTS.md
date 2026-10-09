@@ -20,6 +20,20 @@ Commits: the agent commits after the user approves the commit. The agent also cr
 
 Before a slice that depends on external data, run a quick check with real data and record the result in the slice plan.
 
+## Definition of Done for a slice
+
+A slice is ready for a pull request when each item is true for the HEAD tree:
+
+- `progress_guardian.py --pre-pr --plan plans/<branch>.md` from dev-team passes. The branch name is the slice name. The hook runs it with `--skip-llm`, so the LLM scope check does not run.
+- `docs/architecture.md` shows the components of the slice.
+- The `adr` agent checked the decisions of the slice, and each ADR it requires is in `docs/adr/`.
+- A Farley Score covers each test that the slice changed, and the Farley rule of the Workflow section is met.
+- The slice plan has a line `Mutation gate: <result>`.
+- `./mvnw verify` and PMD pass.
+- The Grok review of the `/pr` skill has no open finding.
+
+A hook runs `scripts/pr-ready.sh` before `git push` and `gh pr create` (also its alias `gh pr new`). While an item is unmet, the hook blocks the command and names each unmet item. It matches plain forms only: wrappers such as `bash -c` pass (see the Risks of `plans/pr-readiness-gate.md`). It checks the plan, the guardian, and that `docs/architecture.md` is in HEAD and not empty. For Maven, PMD, the `adr` agent, the Farley Score and the Grok review, it checks only a record for the HEAD tree. After such a check passes on the final tree, `scripts/pr-ready.sh record <check> <evidence>` writes the record. The checks are `maven`, `pmd`, `adr`, `farley` and `grok`.
+
 ## Writing
 
 Write thin text: documents, code comments, and pull request descriptions. Long text goes unread, and filler hides the part that matters. Tell the reader something that the code, the diff, or the text above does not show. One short sentence is often enough. Use more when the content needs more.

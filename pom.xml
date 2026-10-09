@@ -171,6 +171,7 @@
                 <configuration>
                     <excludedTestClasses>
                         <param>*IT</param>
+                        <param>io.github.corioliskraft.doomsdayradar.tooling.*</param>
                     </excludedTestClasses>
                     <outputFormats>
                         <param>XML</param>
