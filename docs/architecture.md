@@ -20,11 +20,11 @@ flowchart LR
     end
 ```
 
-The import job counts aircraft per square and sends one message per square. The consumer in `RadarService` writes the messages to ClickHouse. `MapServer` serves the page, MapLibre, and the squares as JSON. The browser loads the map tiles from OpenFreeMap.
+The import job counts the records of each 1° square and sends one message per square. It does not read the ICAO code yet (slice 2). The consumer in `RadarService` writes the messages to ClickHouse. `MapServer` serves the page, MapLibre, and the squares as JSON. The browser loads the map tiles from OpenFreeMap.
 
 | Part | Code | Role |
 |---|---|---|
-| Import job | [ImportJob.java](../src/main/java/io/github/corioliskraft/doomsdayradar/ImportJob.java), [HeatmapFile.java](../src/main/java/io/github/corioliskraft/doomsdayradar/HeatmapFile.java) | Reads one file and counts aircraft per 1° square. Registers the Avro schema and sends the counts. |
+| Import job | [ImportJob.java](../src/main/java/io/github/corioliskraft/doomsdayradar/ImportJob.java), [HeatmapFile.java](../src/main/java/io/github/corioliskraft/doomsdayradar/HeatmapFile.java) | Reads one file and counts the records per 1° square. Registers the Avro schema and sends the counts. |
 | Kafka and Schema Registry | [square_count.avsc](../src/main/avro/square_count.avsc) | Topic `square-counts` (1 partition). The registry holds the schema of `SquareCount`. |
 | Consumer | [SquareCountConsumer.java](../src/main/java/io/github/corioliskraft/doomsdayradar/SquareCountConsumer.java) | Creates the topic and the table. Inserts each batch into ClickHouse, then commits the offset. |
 | ClickHouse | [Tables.java](../src/main/java/io/github/corioliskraft/doomsdayradar/Tables.java) | Table `square_counts` (latitude, longitude, aircraft). |

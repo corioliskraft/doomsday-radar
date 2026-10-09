@@ -32,8 +32,8 @@ An operator runs the job on a local file, and the page shows a grey square for e
   3. The map is white for land and water, with thin lines for the coastlines and the country borders. A square with 0 aircraft is white.
 - **RED**: an end-to-end test with Testcontainers (Kafka, Schema Registry, ClickHouse) runs the job on a small fixture with only position records, and reads the counts from the endpoint.
 - **Before it starts**: Docker runs; the `developing-kafka-java-client` skill is installed.
-- **Libraries** (accepted 2026-10-06): `kafka-clients` 4.3.1, ClickHouse `client-v2` 0.10.0, Testcontainers 2.0.5, Confluent Schema Registry 8.3.2 with `kafka-avro-serializer` 8.3.2 and Avro 1.12.2, the JDK HTTP server, MapLibre GL JS 6.12.0 with OpenFreeMap tiles. Test only: Jackson 3.2.3 reads the endpoint JSON; Playwright for Java 1.63.0 checks the page (added 2026-10-08). Leaflet lost because its last stable release is from 2023.
-- **Next increment**: a failure in the consumer thread reaches the caller, with its own failing test. The same increment adds the test for a failed `SquareCountConsumer.start`: it closes the ClickHouse client. That close has no test yet.
+- **Libraries** (accepted 2026-10-06): `kafka-clients` 4.3.1, ClickHouse `client-v2` 0.10.0, Testcontainers 2.0.5, Confluent Schema Registry 8.3.2 with `kafka-avro-serializer` 8.3.2 and Avro 1.12.2, the JDK HTTP server, MapLibre GL JS 6.12.0 with OpenFreeMap tiles. SLF4J 2.0.20 (`slf4j-api`, and `slf4j-simple` at runtime) gives the clients a logger. Test only: Jackson 3.2.3 reads the endpoint JSON; Playwright for Java 1.63.0 checks the page (added 2026-10-08). Leaflet lost because its last stable release is from 2023.
+- **Next increment**: a failure in the consumer thread reaches the caller, with its own failing test. The same increment adds the test for a failed `SquareCountConsumer.start`: it closes the ClickHouse client. That close has no test yet. The same increment makes `SquareCountConsumer.close` close the ClickHouse client when the wait for the poll thread is interrupted.
 **Depends-on:** none
 **Files:** `pom.xml`, `src/main/`, `src/test/java/io/github/corioliskraft/doomsdayradar/`, `docs/`, `AGENTS.md`, `.claude/`, `scripts/`, `plans/`
 
@@ -88,7 +88,7 @@ Feature: Map page
 
 **Complexity**: standard
 **IMPLEMENT**: The page reads `/api/squares` and draws each square with the fill colour of the design.
-**TEST**: `MapPageIT`: before the job runs, no square is rendered. After the job runs on the criterion 1 fixture: both fills are grey and not white, the 52°N 13°E fill has the lower luminance, and no square covers 0°N 0°E. Full suite green.
+**TEST**: `MapPageIT`: before the job runs, no square is rendered. After the job runs on the criterion 1 fixture: both fills are grey and not white, the 52°N 13°E fill has the lower luminance, and no square covers 0°N 0°E. A square with 0 aircraft, from a replaced endpoint answer, is white. Full suite green.
 **REFACTOR**: every green.
 **Files**: `src/main/resources/web/index.html`, `src/test/java/io/github/corioliskraft/doomsdayradar/MapPageIT.java`, `src/test/java/io/github/corioliskraft/doomsdayradar/HeatmapFixture.java`, `src/test/java/io/github/corioliskraft/doomsdayradar/SquaresClient.java`
 **Commit**: `Show the squares in grey`
@@ -111,7 +111,7 @@ Feature: Map page
 **Files**: `src/main/resources/web/maplibre/*`, `src/main/resources/web/index.html`, `src/main/java/io/github/corioliskraft/doomsdayradar/MapServer.java`, `src/test/java/io/github/corioliskraft/doomsdayradar/MapPageIT.java`
 **Commit**: `Serve MapLibre from the project`
 
-Farley properties below 6 that stay (2026-10-09, report `dev/farley-slice-1.md`, 15 cases, suite score 7.8):
+Farley properties below 6 that stay (2026-10-09, report `dev/farley-slice-1.md`, 16 cases, suite score 7.8):
 
 - `baseMapDrawsCoastlinesAndBordersAndLeavesLandAndOpenOceanWhite`, Repeatable 4: criterion 3 is about the real coastlines and borders, so the test reads the real OpenFreeMap tiles. Atomic 5: the four assertions read one screenshot of one page state; a split would load the page and the tiles again for each assertion.
 - `endpointReturnsTheAircraftCountOfEachSquareInOneFile`, Fast 4: the end-to-end test runs through Kafka and ClickHouse; the time is the container cost (class 47 s).

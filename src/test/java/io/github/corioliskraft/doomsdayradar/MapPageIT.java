@@ -6,6 +6,7 @@ import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import com.microsoft.playwright.PlaywrightException;
+import com.microsoft.playwright.Route;
 
 import io.github.corioliskraft.doomsdayradar.MapScreenshot.Point;
 
@@ -137,6 +138,36 @@ class MapPageIT {
             assertThat(squaresRenderedAt(session.page, SQUARE_0N_0E_CENTRE))
                     .as("squares at 0N 0E, which has no aircraft")
                     .isZero();
+        }
+    }
+
+    @Test
+    void aSquareWithNoAircraftIsWhiteWhileASquareWithAircraftIsGrey() throws Exception {
+        try (var session = Session.start()) {
+            session.page.route(
+                    "**/api/squares",
+                    route ->
+                            route.fulfill(
+                                    new Route.FulfillOptions()
+                                            .setContentType("application/json")
+                                            .setBody(
+                                                    """
+                                                    [{"latitude":52,"longitude":13,"aircraft":0},
+                                                     {"latitude":48,"longitude":2,"aircraft":2}]
+                                                    """)));
+            session.open();
+
+            waitUntil(session.page, SQUARES_LOADED);
+            var screenshot = MapScreenshot.of(session.page);
+            assertThat(squaresRenderedAt(session.page, SQUARE_52N_13E_CENTRE))
+                    .as("squares drawn at 52N 13E, which has 0 aircraft")
+                    .isPositive();
+            assertThat(screenshot.colourAt(SQUARE_52N_13E_CENTRE))
+                    .as("fill of 52N 13E, 0 aircraft")
+                    .isEqualTo(Color.WHITE);
+            assertThat(screenshot.colourAt(SQUARE_48N_2E_CENTRE))
+                    .as("fill of 48N 2E, 2 aircraft")
+                    .isEqualTo(DARK_GREY);
         }
     }
 

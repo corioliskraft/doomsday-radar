@@ -13,7 +13,7 @@ The page shows a world map with a colour square for each 1° square. The base ma
 ## Decision
 
 - The map library is MapLibre GL JS 6.12.0.
-- `MapServer` serves the library files under `/maplibre/`. They are copied from the npm tarball into `src/main/resources/web/maplibre/`, and the sha512 was checked against npm.
+- `MapServer` serves the library files under `/maplibre/`. They are copied from the npm tarball into `src/main/resources/web/maplibre/`, and the plan records the npm integrity string that the tarball was checked against on 2026-10-08. No build step repeats that check.
 - The tiles are the OpenFreeMap vector tiles. The page builds its own style on them.
 - The browser loads the tiles from OpenFreeMap at runtime. OpenFreeMap needs no key.
 
@@ -21,17 +21,13 @@ The page shows a world map with a colour square for each 1° square. The base ma
 
 ### Leaflet
 
-**Why rejected**: the last stable release on npm is 1.9.4 of 2023-05-18.
+**Why rejected**: the last stable release on npm is 1.9.4 of 2023-05-18; No additional benefits vs MapLibre.
 
 ### Library from a CDN
 
 The step 1.5 test requires that the page loads scripts and stylesheets only from the service itself. Its RED case was a request to unpkg.com.
 
-**Why rejected**: the reason is not recorded in the sources.
-
-### Other tile sources
-
-Not recorded in the sources.
+**Why rejected**: No additional benefits vs MapLibre
 
 ## Consequences
 

@@ -119,8 +119,8 @@ One slice, one wave (`plan_waves.py`: no collisions, no scope mismatches).
 
 ## Pre-PR Quality Gate
 
-- [x] `./mvnw verify` passes. 2026-10-09: BUILD SUCCESS, 100 unit tests (99 in `PrReadyScriptTest`) and 14 IT, 0 failures; log `dev/mvn-verify-r3.log`.
-- [x] PMD passes. 2026-10-09: "Found no violations.", `dev/pmd-r3.log`.
+- [x] `./mvnw verify` passes. 2026-10-09: BUILD SUCCESS, 104 unit tests (103 in `PrReadyScriptTest`) and 15 IT, 0 failures; log `dev/mvn-verify-pr.log`.
+- [x] PMD passes. 2026-10-09: "Found no violations.", `dev/pmd-pr.log`.
 - [ ] Review of the slice diff.
 
 ## Risks & Open Questions
@@ -129,8 +129,8 @@ One slice, one wave (`plan_waves.py`: no collisions, no scope mismatches).
 - The hook also blocks a `git push` of work in progress. Nikolay can push from his own terminal, where the hook does not run.
 - The guardian reads the working tree, not HEAD. It reports uncommitted changes itself, except in the slice plan file, which the script checks.
 - The guardian reads only list lines that start at column 0. The plans from `/dev-team:plan` indent the steps under the slice line, so the guardian sees the slice line only, and an open step under a ticked slice passes. The script closes this for an open indented checkbox under `## Build Progress` in the HEAD plan. A step that has no checkbox, for example a `####` heading, is not checked.
-- `docs/architecture.md` is checked for content, not for the components. The `adr` and Grok reviews cover the content.
-- Not matched: `bash -c`, `sh -c`, backticks, `{ ...; }`, shell keywords such as `then`, `command`, `env` with options such as `env -i` (bare `env` and `VAR=value` prefixes are matched), and a quoted or escaped command word such as `"/usr/bin/git" push`. The gate catches a forgotten rule, not a hidden push.
+- The script checks only that `docs/architecture.md` is in HEAD and not empty. The `adr` and Grok reviews cover the content.
+- Not matched: `bash -c`, `sh -c`, backticks, `{ ...; }`, shell keywords such as `then`, `command`, `env` with options such as `env -i` (bare `env` and `VAR=value` prefixes are matched), a quoted or escaped command word such as `"/usr/bin/git" push`, and a backslash-newline between the words of `git push`, `gh pr create` or `gh pr new` (a command whose words stay on one line, as in `git push \` followed by a newline, is matched). The gate catches a forgotten rule, not a hidden push.
 - Claude Code blocks only on exit 2, so a hook timeout or a missing script lets the command run. The guardian runs with `--skip-llm`, so the check stays far below the timeout.
 - The gate checks the HEAD tree, not the ref in the command, so `git push origin other` pushes a ref that the gate did not check. Accepted: a refspec parser would grow the matcher, and the matcher stays frozen.
 - The agent can edit `scripts/pr-ready.sh`, the hook entry in `.claude/settings.json` and the variable `PR_READY_PROGRESS_GUARDIAN`. This is the same risk as the self-written records, and the same decision (Decisions). The gate catches a forgetful agent, not a hostile one.

@@ -15,7 +15,7 @@
 
 ## First steps
 
-1. **One file.** A Java job reads one file and sends the counts and ICAO hex codes for each square and slot through Kafka to ClickHouse. Result: the world map shows each square in a shade of grey: white for 0 aircraft, darker for more aircraft.
+1. **One file.** A Java job reads one file and sends the counts for each square through Kafka to ClickHouse. The ICAO hex codes follow in slice 2. Result: the world map shows each square in a shade of grey: white for 0 aircraft, darker for more aircraft.
 2. **Four weeks of history, baseline, and colours.** A backfill job does step 1 for each file of the last 29 days. The processing job calculates the baseline and the status of each square. Result: each square has the colour of its status.
 3. **Live data.** A poll job does step 1 for the newest file every 30 minutes. Result: the map shows the latest slot.
 
@@ -37,7 +37,7 @@ Data flow:
 |---|---|---|
 | Java | Java 25 | Newest LTS, supports all tools that we need. |
 | Kafka | Now, one broker | All later sources send their data through Kafka. |
-| Message format | Avro with Confluent Schema Registry, now | Kafka accepts any bytes. The registry rejects a message that does not match the schema, before the message gets into the topic. |
+| Message format | Avro with Confluent Schema Registry, now | Kafka accepts any bytes. The producer serializer checks each message against the registered schema and refuses a message that does not match, before the message is sent. |
 | Database | ClickHouse, now | Free and open source (Apache 2.0). It runs locally in Docker, has a Testcontainers module, a Kafka table engine, unique counts, and geographic functions. This is sufficient for our needs. |
 | Docker | Now | Kafka and ClickHouse run in containers on the laptop. Testcontainers also needs Docker. |
 | Map page | MapLibre GL JS 6.12.0 served by the project, OpenFreeMap vector tiles, now | Leaflet has no stable release since 2023. OpenFreeMap needs no key. The browser loads the tiles from OpenFreeMap at runtime. |

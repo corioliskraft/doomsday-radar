@@ -12,7 +12,7 @@ Every signal source will send its data through Kafka (see [walking-skeleton.md](
 
 ## Decision
 
-Messages use Avro, and the schema is registered in Confluent Schema Registry. The registry rejects a message that does not match the schema, before the message gets into the topic. The first schema is [square_count.avsc](../../src/main/avro/square_count.avsc).
+Messages use Avro, and the schema is registered in Confluent Schema Registry. The producer serializer checks each message against the registered schema and refuses a message that does not match, before the message is sent. The first schema is [square_count.avsc](../../src/main/avro/square_count.avsc).
 
 ## Alternatives considered
 
@@ -28,7 +28,7 @@ Other formats (for example JSON or Protobuf): not recorded in the sources.
 
 ### Positive
 
-- A message that breaks the schema never gets into the topic.
+- A message that breaks the schema never leaves the project producer. A client that does not use the serializer can still write bytes to the topic.
 - The schema is in one place for all later sources.
 
 ### Negative

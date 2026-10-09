@@ -572,7 +572,11 @@ class PrReadyScriptTest {
                 "sh -c \"git push\"",
                 "if x; then git push; fi",
                 "echo `git push`",
-                "{ git push; }"
+                "{ git push; }",
+                "git \\\npush",
+                "gh \\\npr create",
+                "gh pr \\\ncreate",
+                "gh pr \\\nnew"
             })
     void hookDoesNotGateWrappedPushes(String command) throws Exception {
         var repo = newRepo();
